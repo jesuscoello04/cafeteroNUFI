@@ -1,0 +1,160 @@
+{% extends 'base.html' %}
+{% block title %}Nueva Factura · El Cafetero de Nufi{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+
+        <div class="d-flex align-items-center mb-4">
+            <a href="{{ url_for('ventas.listar') }}" class="btn btn-outline-secondary btn-sm me-3">
+                <i class="bi bi-arrow-left"></i>
+            </a>
+            <h3 class="fw-bold mb-0">Nueva Factura</h3>
+        </div>
+
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4">
+                <form method="POST" id="facturaForm">
+
+                    <!-- Cliente -->
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">Cliente</label>
+                        <div class="input-group">
+                            <select name="cliente_id" class="form-select" required>
+                                <option value="">Seleccionar cliente...</option>
+                                {% for c in clientes %}
+                                <option value="{{ c.id }}">{{ c.nombre }} — {{ c.documento or 'Sin documento' }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                            <a href="{{ url_for('ventas.nuevo_cliente') }}" class="btn btn-outline-success">
+                                <i class="bi bi-plus"></i> Nuevo
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Líneas de productos -->
+                    <label class="form-label fw-semibold">Productos</label>
+                    <div id="lineas">
+                        <div class="linea row g-2 mb-2 align-items-center">
+                            <div class="col-md-6">
+                                <select name="producto_id[]" class="form-select producto-select" required>
+                                    <option value="">Seleccionar producto...</option>
+                                    {% for p in productos %}
+                                    <option value="{{ p.id }}" data-precio="{{ p.precio_unitario }}">
+                                        {{ p.nombre }} — ${{ "%.2f"|format(p.precio_unitario) }} / {{ p.unidad_medida }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <input type="number" name="cantidad[]" class="form-control cantidad-input"
+                                    placeholder="Cantidad" step="0.01" min="0.01" required>
+                            </div>
+                            <div class="col-md-3">
+                                <input type="text" class="form-control subtotal-display bg-light" placeholder="Subtotal"
+                                    readonly>
+                            </div>
+                            <div class="col-md-1">
+                                <button type="button" class="btn btn-outline-danger btn-eliminar">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="button" id="btnAgregarLinea" class="btn btn-outline-primary btn-sm mb-4">
+                        <i class="bi bi-plus"></i> Agregar producto
+                    </button>
+
+                    <!-- Total -->
+                    <div class="d-flex justify-content-end mb-4">
+                        <div class="card bg-success text-white px-4 py-2">
+                            <span class="fw-bold fs-5">Total: $<span id="totalGeneral">0.00</span></span>
+                        </div>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-warning btn-lg">
+                            <i class="bi bi-check-lg"></i> Guardar Factura
+                        </button>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Template de una línea de producto
+    const templateLinea = `
+        <div class="linea row g-2 mb-2 align-items-center">
+            <div class="col-md-6">
+                <select name="producto_id[]" class="form-select producto-select" required>
+                    <option value="">Seleccionar producto...</option>
+                    {% for p in productos %}
+                    <option value="{{ p.id }}" data-precio="{{ p.precio_unitario }}">
+                        {{ p.nombre }} — ${{ "%.2f"| format(p.precio_unitario) }} / {{ p.unidad_medida }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <input type="number" name="cantidad[]" class="form-control cantidad-input"
+                       placeholder="Cantidad" step="0.01" min="0.01" required>
+            </div>
+            <div class="col-md-3">
+                <input type="text" class="form-control subtotal-display bg-light"
+                       placeholder="Subtotal" readonly>
+            </div>
+            <div class="col-md-1">
+                <button type="button" class="btn btn-outline-danger btn-eliminar">
+                    <i class="bi bi-trash"></i>
+                </button>
+            </div>
+        </div>`;
+
+    // Agregar línea
+    document.getElementById('btnAgregarLinea').addEventListener('click', () => {
+        document.getElementById('lineas').insertAdjacentHTML('beforeend', templateLinea);
+        attachEvents();
+    });
+
+    // Calcular subtotal y total
+    function calcularTotales() {
+        let total = 0;
+        document.querySelectorAll('.linea').forEach(linea => {
+            const select = linea.querySelector('.producto-select');
+            const cantidad = parseFloat(linea.querySelector('.cantidad-input').value) || 0;
+            const precio = parseFloat(select.selectedOptions[0]?.dataset.precio) || 0;
+            const subtotal = cantidad * precio;
+            linea.querySelector('.subtotal-display').value = subtotal > 0 ? '$' + subtotal.toFixed(2) : '';
+            total += subtotal;
+        });
+        document.getElementById('totalGeneral').textContent = total.toFixed(2);
+    }
+
+    // Eliminar línea
+    function attachEvents() {
+        document.querySelectorAll('.btn-eliminar').forEach(btn => {
+            btn.onclick = function () {
+                const lineas = document.querySelectorAll('.linea');
+                if (lineas.length > 1) {
+                    this.closest('.linea').remove();
+                    calcularTotales();
+                }
+            };
+        });
+        document.querySelectorAll('.producto-select, .cantidad-input').forEach(el => {
+            el.addEventListener('change', calcularTotales);
+            el.addEventListener('input', calcularTotales);
+        });
+    }
+
+    attachEvents();
+</script>
+{% endblock %}

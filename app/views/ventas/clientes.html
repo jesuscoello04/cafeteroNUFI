@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% block title %}Clientes · El Cafetero de Nufi{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex align-items-center">
+        <a href="{{ url_for('ventas.listar') }}" class="btn btn-outline-secondary btn-sm me-3">
+            <i class="bi bi-arrow-left"></i>
+        </a>
+        <h3 class="fw-bold mb-0"><i class="bi bi-people"></i> Clientes</h3>
+    </div>
+    {% if current_user.rol in ['admin', 'operario'] %}
+    <a href="{{ url_for('ventas.nuevo_cliente') }}" class="btn btn-warning">
+        <i class="bi bi-plus-lg"></i> Nuevo Cliente
+    </a>
+    {% endif %}
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead class="table-warning">
+                <tr>
+                    <th>#</th>
+                    <th>Nombre</th>
+                    <th>Documento</th>
+                    <th>Teléfono</th>
+                    <th>Dirección</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for c in clientes %}
+                <tr>
+                    <td>{{ c.id }}</td>
+                    <td>{{ c.nombre }}</td>
+                    <td>{{ c.documento or '—' }}</td>
+                    <td>{{ c.telefono or '—' }}</td>
+                    <td>{{ c.direccion or '—' }}</td>
+                    <td>
+                        {% if current_user.rol in ['admin', 'operario'] %}
+                        <a href="{{ url_for('ventas.editar_cliente', id=c.id) }}"
+                            class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-pencil"></i>
+                        </a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="6" class="text-center text-muted py-4">
+                        No hay clientes registrados.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

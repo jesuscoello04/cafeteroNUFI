@@ -38,7 +38,7 @@
                     <!-- Ventas: admin y operario -->
                     {% if current_user.rol in ['admin', 'operario'] %}
                     <li class="nav-item">
-                        <a class="nav-link" href="#"><i class="bi bi-cart3"></i> Ventas</a>
+                        <a class="nav-link" href="{{ url_for('ventas.listar') }}"><i class="bi bi-cart3"></i> Ventas</a>
                     </li>
                     {% endif %}
 

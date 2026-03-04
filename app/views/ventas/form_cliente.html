@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% block title %}{{ 'Editar' if cliente else 'Nuevo' }} Cliente · El Cafetero de Nufi{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+
+        <div class="d-flex align-items-center mb-4">
+            <a href="{{ url_for('ventas.listar_clientes') }}" class="btn btn-outline-secondary btn-sm me-3">
+                <i class="bi bi-arrow-left"></i>
+            </a>
+            <h3 class="fw-bold mb-0">
+                {{ 'Editar Cliente' if cliente else 'Nuevo Cliente' }}
+            </h3>
+        </div>
+
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4">
+                <form method="POST">
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Nombre / Razón social</label>
+                        <input type="text" name="nombre" class="form-control"
+                            value="{{ cliente.nombre if cliente else '' }}" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Documento <span class="text-muted fw-normal">(Cédula o
+                                NIT)</span></label>
+                        <input type="text" name="documento" class="form-control"
+                            value="{{ cliente.documento if cliente else '' }}">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Teléfono</label>
+                        <input type="text" name="telefono" class="form-control"
+                            value="{{ cliente.telefono if cliente else '' }}">
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">Dirección</label>
+                        <input type="text" name="direccion" class="form-control"
+                            value="{{ cliente.direccion if cliente else '' }}">
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-warning">
+                            <i class="bi bi-check-lg"></i>
+                            {{ 'Guardar cambios' if cliente else 'Registrar cliente' }}
+                        </button>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
