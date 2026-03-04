@@ -32,4 +32,7 @@ def create_app():
     from app.controllers.movimiento_controller import movimiento_bp
     app.register_blueprint(movimiento_bp)
     
+    from app.controllers.venta_controller import venta_bp
+    app.register_blueprint(venta_bp)
+    
     return app
